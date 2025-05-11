@@ -1,0 +1,2 @@
+SECRET_KEY = "bardzo_tajny_klucz"
+MONGO_URI = "mongodb://localhost:27017/PWA"
