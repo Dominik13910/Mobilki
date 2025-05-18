@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
-from config import DevelopmentConfig  # lub ProductionConfig
+from config import Config  # lub ProductionConfig
 from db import init_db
 from routes.auth_routes import auth_bp
 from routes.transaction_routes import transaction_bp
@@ -9,7 +9,7 @@ from routes.report_routes import report_bp
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)  # <- wybierz konfigurację
+app.config.from_object(Config)  # <- wybierz konfigurację
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 # Inicjalizacja DB
 db = init_db(app)

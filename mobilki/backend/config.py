@@ -9,12 +9,5 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = 60 * 60 * 24 * 7  # 7 dni
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-
-class ProductionConfig(Config):
-    DEBUG = False
-
-class TestingConfig(Config):
-    TESTING = True
+    DEBUG = os.environ.get("FLASK_ENV") == "development"
+    TESTING = os.environ.get("FLASK_ENV") == "testing" 
