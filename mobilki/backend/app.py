@@ -6,10 +6,11 @@ from routes.auth_routes import auth_bp
 from routes.transaction_routes import transaction_bp
 from routes.budget_routes import budget_bp
 from routes.report_routes import report_bp
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # <- wybierz konfigurację
-
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 # Inicjalizacja DB
 db = init_db(app)
 
