@@ -1,6 +1,6 @@
 import "./globals.css";
 import { ReactNode } from "react";
-import { ThemeProvider } from "@/components/theme-provider"; // przenieśliśmy tam useEffect
+import { ThemeProvider } from "@/components/theme-provider";
 import Layout from "@/components/layout/Layout";
 
 export const metadata = {

@@ -4,15 +4,18 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/lib/auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async () => {
     try {
       const res = await login({ username, password });
-      console.log("Login success:", res);
+      router.push("/");
     } catch (err) {
       console.error("Login error:", err);
     }
@@ -32,6 +35,13 @@ export default function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
       />
       <Button onClick={handleSubmit}>Zaloguj się</Button>
+
+      <div className="text-sm text-center">
+        Nie masz konta?{" "}
+        <Link href="/register" className="text-blue-600 hover:underline">
+          Zarejestruj się
+        </Link>
+      </div>
     </div>
   );
 }

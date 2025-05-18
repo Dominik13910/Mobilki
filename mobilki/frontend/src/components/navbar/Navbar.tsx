@@ -2,6 +2,8 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, User } from "lucide-react";
 import {
@@ -14,14 +16,22 @@ import {
 export function Navbar() {
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
-  // Ensure that theme switching happens only on the client
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Only render once mounted
-  if (!mounted) return null; // or return a loading spinner to improve UX
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.replace("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  if (!mounted) return null;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between shadow-sm">
@@ -53,7 +63,7 @@ export function Navbar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem>Wyloguj</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Wyloguj</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify, session
+from flask_cors import CORS
 
 auth_bp = Blueprint('auth', __name__)
+CORS(auth_bp, origins=["http://localhost:3000"], supports_credentials=True)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -38,7 +40,6 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    # Check if the username and password match
     user = users.find_one({'username': username})
     if user and auth_bp.bcrypt.check_password_hash(user['password'], password):
         session['user_id'] = str(user['_id'])
