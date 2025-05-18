@@ -9,6 +9,8 @@ export function Sidebar() {
 
   const links = [
     { href: "/", label: "Strona główna" },
+    { href: "/budget", label: "Budżet" },
+    { href: "/transactions", label: "Transakcje" },
     { href: "/limits", label: "Ograniczenia" },
     { href: "/expenses", label: "Wydatki" },
     { href: "/stats", label: "Statystyka" },
