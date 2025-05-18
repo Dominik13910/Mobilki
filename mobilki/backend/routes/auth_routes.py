@@ -31,7 +31,7 @@ def register():
         'status': 'success',
         'message': 'Registration successful. You can now log in.'
     }
-    return jsonify(data), 409
+    return jsonify(data), 201
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
