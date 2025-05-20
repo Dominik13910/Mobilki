@@ -65,7 +65,7 @@ def get_transactions():
     if category:
         query['category'] = category
     if date_filter:
-        query['created_at'] = date_filter
+        query['date'] = date_filter
 
     results = []
 
@@ -73,7 +73,7 @@ def get_transactions():
     for trans in transactions:
         results.append(transaction.create_transaction_api(trans))
 
-    results.sort(key=lambda x: x['created_at'], reverse=True)
+    results.sort(key=lambda x: x['date'], reverse=True)
     return jsonify(results), 200
 
 @transaction_bp.route('/summary', methods=['GET'])
