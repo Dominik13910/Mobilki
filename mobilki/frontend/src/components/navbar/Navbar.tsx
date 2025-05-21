@@ -53,15 +53,6 @@ export function Navbar() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white"
-            >
-              <User className="h-10 w-10" />
-            </Button>
-          </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={handleLogout}>Wyloguj</DropdownMenuItem>
           </DropdownMenuContent>

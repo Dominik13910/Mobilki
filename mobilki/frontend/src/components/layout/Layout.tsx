@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const isAuthPage = pathname === "/login" || pathname === "/register";
 
   if (isAuthPage) {
-    return <main className="w-full">{children}</main>; // bez navbar i sidebar
+    return <main className="w-full">{children}</main>;
   }
 
   return (
