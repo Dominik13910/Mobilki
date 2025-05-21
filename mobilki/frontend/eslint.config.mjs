@@ -13,4 +13,11 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
+module.exports = {
+  root: true,
+  extends: "@react-native-community",
+  rules: {
+    "no-unused-vars": "off",
+  },
+};
 export default eslintConfig;
