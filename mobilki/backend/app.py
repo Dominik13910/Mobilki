@@ -12,7 +12,7 @@ app = Flask(__name__)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 app.config.from_object(Config)  # <- wybierz konfigurację
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+CORS(app, origins=[app.config['FRONT_END_URL']], supports_credentials=True)
 # Inicjalizacja DB
 db = init_db(app)
 
