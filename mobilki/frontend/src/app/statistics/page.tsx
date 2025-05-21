@@ -18,7 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addMonths, isBefore } from "date-fns";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://budzetify.onrender.com";
 
 export default function StatisticsPage() {
   const today = new Date();

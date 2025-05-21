@@ -10,7 +10,8 @@ import {
   showBudgetWarning,
 } from "@/utils/notifications";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://budzetify.onrender.com";
 
 export default function BudgetPage() {
   const [month, setMonth] = useState(() => format(new Date(), "yyyy-MM"));
