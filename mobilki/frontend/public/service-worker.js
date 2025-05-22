@@ -1,4 +1,4 @@
-const CACHE_NAME = "my-cache-v1";
+const CACHE_NAME = "static-v1";
 const URLS_TO_CACHE = [
   "/",
   "/index.html",
@@ -9,48 +9,60 @@ const URLS_TO_CACHE = [
 ];
 
 self.addEventListener("install", (event) => {
-  console.log("Service Worker installed");
-  self.skipWaiting();
+  console.log("Service Worker zainstalowany");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(URLS_TO_CACHE);
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker activated");
+  console.log("Service Worker aktywowany");
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    })
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => caches.delete(name))
+        )
+      )
   );
   self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cachedResponse = await cache.match(event.request);
+    caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      try {
-        const networkResponse = await fetch(event.request);
-        if (networkResponse && networkResponse.status === 200) {
-          cache.put(event.request, networkResponse.clone());
-        }
-        return networkResponse;
-      } catch (error) {
-        if (event.request.mode === "navigate") {
-          return caches.match("/offline.html");
-        }
-        throw error;
-      }
+
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (
+            !networkResponse ||
+            networkResponse.status !== 200 ||
+            networkResponse.type !== "basic"
+          ) {
+            return networkResponse;
+          }
+
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+          return networkResponse;
+        })
+        .catch(() => {
+          if (event.request.mode === "navigate") {
+            return caches.match("/offline.html");
+          }
+        });
     })
   );
 });
@@ -64,14 +76,15 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(title, {
       body,
       icon: "/icon-192x192.png",
-      data: { url: data.url || "/" },
+      data: {
+        url: data.url || "/",
+      },
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-
   const urlToOpen = event.notification.data?.url || "/";
 
   event.waitUntil(

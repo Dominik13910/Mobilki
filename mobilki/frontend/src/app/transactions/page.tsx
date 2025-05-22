@@ -77,14 +77,21 @@ export default function TransactionsPage() {
       const res = await fetch(`${API_URL}/transactions?${params.toString()}`, {
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Offline fallback");
+
+      if (!res.ok) throw new Error("API response not OK");
+
       const data = await res.json();
+
       localStorage.setItem(`transactions-${month}`, JSON.stringify(data));
       setTransactions(data);
-    } catch {
+    } catch (error) {
+      console.warn("Nie udało się pobrać danych z API, używam localStorage");
+
       const cached = localStorage.getItem(`transactions-${month}`);
       const parsed = cached ? JSON.parse(cached) : [];
-      setTransactions(applyFilters(parsed));
+
+      const filtered = applyFilters(parsed);
+      setTransactions(filtered);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { format, parseISO, startOfMonth } from "date-fns";
 import {
   LineChart,
@@ -40,146 +40,157 @@ export default function StatisticsPage() {
     { month: string; Przychody: number; Wydatki: number }[]
   >([]);
 
-  const fetchLineChartData = async (forceRefresh = false) => {
-    const fromDate = `${month}-01`;
-    const toDate = format(
-      new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0),
-      "yyyy-MM-dd"
-    );
+  const fetchLineChartData = useCallback(
+    async (forceRefresh = false) => {
+      const fromDate = `${month}-01`;
+      const toDate = format(
+        new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0),
+        "yyyy-MM-dd"
+      );
 
-    const cacheKeyBudget = `budget-${month}`;
-    const cacheKeyTransactions = `transactions-${month}`;
+      const cacheKeyBudget = `budget-${month}`;
+      const cacheKeyTransactions = `transactions-${month}`;
 
-    if (!forceRefresh) {
-      const cachedBudget = localStorage.getItem(cacheKeyBudget);
-      const cachedTx = localStorage.getItem(cacheKeyTransactions);
+      try {
+        const [budgetRes, txRes] = await Promise.all([
+          fetch(`${API_URL}/budget?month=${month}`, { credentials: "include" }),
+          fetch(`${API_URL}/transactions?from=${fromDate}&to=${toDate}`, {
+            credentials: "include",
+          }),
+        ]);
 
-      if (cachedBudget && cachedTx) {
-        try {
-          const budgetData = JSON.parse(cachedBudget);
-          const transactions = JSON.parse(cachedTx);
+        if (!budgetRes.ok || !txRes.ok) throw new Error("API error");
 
-          const incomePoints: { date: string; amount: number }[] = [];
-          const expensePoints: { date: string; amount: number }[] = [];
+        const budgetData = await budgetRes.json();
+        const transactions = await txRes.json();
 
-          for (const tx of transactions) {
-            const date = tx.date?.slice(0, 10) || tx.date?.slice(0, 10);
-            if (tx.category === "Przychody") {
-              incomePoints.push({ date, amount: tx.amount });
-            } else {
-              expensePoints.push({ date, amount: tx.amount });
+        localStorage.setItem(cacheKeyBudget, JSON.stringify(budgetData));
+        localStorage.setItem(
+          cacheKeyTransactions,
+          JSON.stringify(transactions)
+        );
+
+        const incomePoints = [];
+        const expensePoints = [];
+
+        for (const tx of transactions) {
+          const date = tx.date?.slice(0, 10);
+          if (tx.category === "Przychody") {
+            incomePoints.push({ date, amount: tx.amount });
+          } else {
+            expensePoints.push({ date, amount: tx.amount });
+          }
+        }
+
+        setIncomeData(
+          incomePoints.sort((a, b) => a.date.localeCompare(b.date))
+        );
+        setExpenseData(
+          expensePoints.sort((a, b) => a.date.localeCompare(b.date))
+        );
+        setBudget(budgetData.amount);
+      } catch {
+        const cachedBudget = localStorage.getItem(cacheKeyBudget);
+        const cachedTx = localStorage.getItem(cacheKeyTransactions);
+
+        if (cachedBudget && cachedTx) {
+          try {
+            const budgetData = JSON.parse(cachedBudget);
+            const transactions = JSON.parse(cachedTx);
+
+            const incomePoints = [];
+            const expensePoints = [];
+
+            for (const tx of transactions) {
+              const date = tx.date?.slice(0, 10);
+              if (tx.category === "Przychody") {
+                incomePoints.push({ date, amount: tx.amount });
+              } else {
+                expensePoints.push({ date, amount: tx.amount });
+              }
             }
+
+            setIncomeData(
+              incomePoints.sort((a, b) => a.date.localeCompare(b.date))
+            );
+            setExpenseData(
+              expensePoints.sort((a, b) => a.date.localeCompare(b.date))
+            );
+            setBudget(budgetData.amount);
+          } catch {
+            console.warn("Brak poprawnych danych w cache.");
+          }
+        }
+      }
+    },
+    [month]
+  );
+
+  const fetchBarChartData = useCallback(
+    async (forceRefresh = false) => {
+      const cacheKey = `barChartData-${from}-${to}`;
+
+      try {
+        const txRes = await fetch(
+          `${API_URL}/transactions?from=${from}&to=${to}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!txRes.ok) throw new Error("API error");
+
+        const transactions = await txRes.json();
+        const monthly: Record<string, { Przychody: number; Wydatki: number }> =
+          {};
+
+        for (const tx of transactions) {
+          const dateStr = tx.date?.slice(0, 10);
+          const date = parseISO(dateStr);
+          const monthKey = format(date, "yyyy-MM");
+
+          if (!monthly[monthKey]) {
+            monthly[monthKey] = { Przychody: 0, Wydatki: 0 };
           }
 
-          incomePoints.sort((a, b) => a.date.localeCompare(b.date));
-          expensePoints.sort((a, b) => a.date.localeCompare(b.date));
+          if (tx.category === "Przychody") {
+            monthly[monthKey].Przychody += tx.amount;
+          } else {
+            monthly[monthKey].Wydatki += tx.amount;
+          }
+        }
 
-          setIncomeData(incomePoints);
-          setExpenseData(expensePoints);
-          setBudget(budgetData.amount);
-          return;
-        } catch {}
+        const start = startOfMonth(parseISO(from));
+        const end = startOfMonth(parseISO(to));
+        const monthsList = [];
+
+        let current = start;
+        while (!isBefore(end, current)) {
+          monthsList.push(format(current, "yyyy-MM"));
+          current = addMonths(current, 1);
+        }
+
+        const barData = monthsList.map((monthKey) => ({
+          month: monthKey,
+          Przychody: monthly[monthKey]?.Przychody || 0,
+          Wydatki: monthly[monthKey]?.Wydatki || 0,
+        }));
+
+        setBarChartData(barData);
+        localStorage.setItem(cacheKey, JSON.stringify(barData));
+      } catch {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            setBarChartData(JSON.parse(cached));
+          } catch {
+            console.warn("Brak poprawnych danych słupkowych w cache.");
+          }
+        }
       }
-    }
-
-    const [budgetRes, txRes] = await Promise.all([
-      fetch(`${API_URL}/budget?month=${month}`, { credentials: "include" }),
-      fetch(`${API_URL}/transactions?from=${fromDate}&to=${toDate}`, {
-        credentials: "include",
-      }),
-    ]);
-
-    if (!budgetRes.ok || !txRes.ok) {
-      return;
-    }
-
-    const budgetData = await budgetRes.json();
-    const transactions = await txRes.json();
-
-    localStorage.setItem(cacheKeyBudget, JSON.stringify(budgetData));
-    localStorage.setItem(cacheKeyTransactions, JSON.stringify(transactions));
-
-    const incomePoints: { date: string; amount: number }[] = [];
-    const expensePoints: { date: string; amount: number }[] = [];
-
-    for (const tx of transactions) {
-      const date = tx.date?.slice(0, 10) || tx.date?.slice(0, 10);
-      if (tx.category === "Przychody") {
-        incomePoints.push({ date, amount: tx.amount });
-      } else {
-        expensePoints.push({ date, amount: tx.amount });
-      }
-    }
-
-    incomePoints.sort((a, b) => a.date.localeCompare(b.date));
-    expensePoints.sort((a, b) => a.date.localeCompare(b.date));
-
-    setIncomeData(incomePoints);
-    setExpenseData(expensePoints);
-    setBudget(budgetData.amount);
-  };
-
-  const fetchBarChartData = async (forceRefresh = false) => {
-    const cacheKey = `barChartData-${from}-${to}`;
-
-    if (!forceRefresh) {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          setBarChartData(JSON.parse(cached));
-          return;
-        } catch {}
-      }
-    }
-
-    const txRes = await fetch(`${API_URL}/transactions?from=${from}&to=${to}`, {
-      credentials: "include",
-    });
-
-    if (!txRes.ok) return;
-
-    const transactions = await txRes.json();
-
-    const monthly: Record<string, { Przychody: number; Wydatki: number }> = {};
-
-    for (const tx of transactions) {
-      const dateStr = tx.date?.slice(0, 10) || tx.date?.slice(0, 10);
-      const date = parseISO(dateStr);
-      const monthKey = format(date, "yyyy-MM");
-
-      if (!monthly[monthKey]) {
-        monthly[monthKey] = { Przychody: 0, Wydatki: 0 };
-      }
-
-      if (tx.category === "Przychody") {
-        monthly[monthKey].Przychody += tx.amount;
-      } else {
-        monthly[monthKey].Wydatki += tx.amount;
-      }
-    }
-
-    const start = startOfMonth(parseISO(from));
-    const end = startOfMonth(parseISO(to));
-    const monthsList: string[] = [];
-
-    let current = start;
-    while (!isBefore(end, current)) {
-      monthsList.push(format(current, "yyyy-MM"));
-      current = addMonths(current, 1);
-    }
-
-    const barData = monthsList.map((monthKey) => {
-      const data = monthly[monthKey] || { Przychody: 0, Wydatki: 0 };
-      return {
-        month: monthKey,
-        Przychody: data.Przychody,
-        Wydatki: data.Wydatki,
-      };
-    });
-
-    setBarChartData(barData);
-    localStorage.setItem(cacheKey, JSON.stringify(barData));
-  };
+    },
+    [from, to]
+  );
 
   useEffect(() => {
     fetchLineChartData();

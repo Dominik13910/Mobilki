@@ -1,11 +1,9 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { logout } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { Sun, Moon, User } from "lucide-react";
+import { User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
-  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -35,24 +32,22 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between shadow-sm">
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-        Budżetify
-      </h1>
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white"
-        >
-          {resolvedTheme === "dark" ? (
-            <Sun className="h-10 w-10" />
-          ) : (
-            <Moon className="h-10 w-10" />
-          )}
-        </Button>
+      <div className="ml-12 md:ml-0 flex items-center">
+        <img
+          src="/web-app-manifest-192x192.png"
+          alt="Budżetify logo"
+          className="h-8 w-8 mr-2"
+        />
+        <span className="text-xl font-semibold text-gray-900 dark:text-white hidden sm:inline">
+          Budżetify
+        </span>
+      </div>
 
+      <div className="flex items-center gap-2">
         <DropdownMenu>
+          <DropdownMenuTrigger className="focus:outline-none">
+            <User className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+          </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={handleLogout}>Wyloguj</DropdownMenuItem>
           </DropdownMenuContent>
