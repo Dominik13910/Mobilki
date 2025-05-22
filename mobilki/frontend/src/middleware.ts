@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("session")?.value;
-  console.log("Middleware: token =", token);
+  const hasSession = req.cookies.has("session");
+  console.log("Middleware: hasSession  =", hasSession ? "true" : "false");
   console.log("Middleware: pathname =", req.nextUrl.pathname);
 
-  if (!token && !["/login", "/register"].includes(req.nextUrl.pathname)) {
+  if (!hasSession  && !["/login", "/register"].includes(req.nextUrl.pathname)) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
