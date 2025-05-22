@@ -25,7 +25,7 @@ export default function BudgetPage() {
   useEffect(() => {
     const fetchData = async () => {
       const meRes = await fetch(`${API_URL}/me`, {
-        credentials: "include"
+        credentials: "include",
       });
 
       if (meRes.status === 401) {
@@ -69,6 +69,19 @@ export default function BudgetPage() {
 
         setIncomes(incomeTotal);
         setExpenses(expenseTotal);
+        requestNotificationPermission();
+
+        if (
+          budgetData?.amount &&
+          expenseTotal >= budgetData.amount - 500 &&
+          expenseTotal < budgetData.amount
+        ) {
+          showBudgetWarning(
+            `Uwaga! Zbliżasz się do limitu budżetu. Pozostało ${Math.round(
+              budgetData.amount - expenseTotal
+            )} PLN.`
+          );
+        }
       } catch {
         const cachedBudget = localStorage.getItem(`budget-${month}`);
         const cachedTx = localStorage.getItem(`transactions-${month}`);
