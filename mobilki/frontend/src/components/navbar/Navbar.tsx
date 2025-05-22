@@ -38,9 +38,6 @@ export function Navbar() {
           alt="Budżetify logo"
           className="h-8 w-8 mr-2"
         />
-        <span className="text-xl font-semibold text-gray-900 dark:text-white hidden sm:inline">
-          Budżetify
-        </span>
       </div>
 
       <div className="flex items-center gap-2">
