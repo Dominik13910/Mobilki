@@ -9,6 +9,7 @@ import {
   requestNotificationPermission,
   showBudgetWarning,
 } from "@/utils/notifications";
+import { useRouter } from "next/navigation";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://budzetify.onrender.com";
@@ -19,9 +20,19 @@ export default function BudgetPage() {
   const [expenses, setExpenses] = useState(0);
   const [incomes, setIncomes] = useState(0);
   const [newBudget, setNewBudget] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
+      const meRes = await fetch(`${API_URL}/me`, {
+        credentials: "include"
+      });
+
+      if (meRes.status === 401) {
+        router.replace("/login");
+        return;
+      }
+
       const nextMonth = format(
         addMonths(new Date(month + "-01"), 1),
         "yyyy-MM"
