@@ -1,6 +1,9 @@
 const CACHE_NAME = "static-v1";
 const URLS_TO_CACHE = [
   "/",
+  "/statistics",
+  "/transactions",
+  "/budget",
   "/web-app-manifest-192x192.png",
   "/web-app-manifest-512x512.png",
 ];

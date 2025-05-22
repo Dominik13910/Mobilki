@@ -41,6 +41,15 @@ export default function StatisticsPage() {
     { month: string; Przychody: number; Wydatki: number }[]
   >([]);
 
+  function getCumulativeData(data: { date: string; amount: number }[]) {
+    const sorted = data.sort((a, b) => a.date.localeCompare(b.date));
+    let total = 0;
+    return sorted.map((entry) => {
+      total += entry.amount;
+      return { date: entry.date, amount: total };
+    });
+  }
+
   const fetchLineChartData = useCallback(
     async (forceRefresh = false) => {
       const meRes = await fetch(`${API_URL}/me`, {
@@ -91,12 +100,8 @@ export default function StatisticsPage() {
           }
         }
 
-        setIncomeData(
-          incomePoints.sort((a, b) => a.date.localeCompare(b.date))
-        );
-        setExpenseData(
-          expensePoints.sort((a, b) => a.date.localeCompare(b.date))
-        );
+        setIncomeData(getCumulativeData(incomePoints));
+        setExpenseData(getCumulativeData(expensePoints));
         setBudget(budgetData.amount);
       } catch {
         const cachedBudget = localStorage.getItem(cacheKeyBudget);
@@ -221,7 +226,7 @@ export default function StatisticsPage() {
 
   useEffect(() => {
     fetchLineChartData();
-  }, [month]);
+  }, [month, fetchLineChartData]);
 
   return (
     <main className="p-4 pt-20 max-w-5xl mx-auto space-y-10">
