@@ -107,17 +107,26 @@ export default function StatisticsPage() {
             const budgetData = JSON.parse(cachedBudget);
             const transactions = JSON.parse(cachedTx);
 
-            const incomePoints = [];
-            const expensePoints = [];
+            const incomeMap: Record<string, number> = {};
+            const expenseMap: Record<string, number> = {};
 
             for (const tx of transactions) {
               const date = tx.date?.slice(0, 10);
+              if (!date) continue;
+
               if (tx.category === "Przychody") {
-                incomePoints.push({ date, amount: tx.amount });
+                incomeMap[date] = (incomeMap[date] || 0) + tx.amount;
               } else {
-                expensePoints.push({ date, amount: tx.amount });
+                expenseMap[date] = (expenseMap[date] || 0) + tx.amount;
               }
             }
+
+            const incomePoints = Object.entries(incomeMap).map(
+              ([date, amount]) => ({ date, amount })
+            );
+            const expensePoints = Object.entries(expenseMap).map(
+              ([date, amount]) => ({ date, amount })
+            );
 
             setIncomeData(
               incomePoints.sort((a, b) => a.date.localeCompare(b.date))
@@ -125,6 +134,7 @@ export default function StatisticsPage() {
             setExpenseData(
               expensePoints.sort((a, b) => a.date.localeCompare(b.date))
             );
+
             setBudget(budgetData.amount);
           } catch {
             console.warn("Brak poprawnych danych w cache.");
