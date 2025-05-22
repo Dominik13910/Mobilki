@@ -43,14 +43,6 @@ export default function StatisticsPage() {
 
   const fetchLineChartData = useCallback(
     async (forceRefresh = false) => {
-      const meRes = await fetch(`${API_URL}/me`, {
-        credentials: "include",
-      });
-
-      if (meRes.status === 401) {
-        router.replace("/login");
-        return;
-      }
       const fromDate = `${month}-01`;
       const toDate = format(
         new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0),
@@ -137,14 +129,6 @@ export default function StatisticsPage() {
 
   const fetchBarChartData = useCallback(
     async (forceRefresh = false) => {
-      const meRes = await fetch(`${API_URL}/me`, {
-        credentials: "include",
-      });
-
-      if (meRes.status === 401) {
-        router.replace("/login");
-        return;
-      }
       const cacheKey = `barChartData-${from}-${to}`;
 
       try {

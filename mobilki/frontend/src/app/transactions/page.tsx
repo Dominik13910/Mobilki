@@ -65,15 +65,6 @@ export default function TransactionsPage() {
   const [filterTo, setFilterTo] = useState(getMonthEnd());
 
   const fetchTransactions = async () => {
-    const meRes = await fetch(`${API_URL}/me`, {
-      credentials: "include",
-    });
-
-    if (meRes.status === 401) {
-      router.replace("/login");
-      return;
-    }
-
     setLoading(true);
     const nextMonth = format(addMonths(new Date(month + "-01"), 1), "yyyy-MM");
     const params = new URLSearchParams({
