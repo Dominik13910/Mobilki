@@ -93,6 +93,8 @@ export default function StatisticsPage() {
 
         for (const tx of transactions) {
           const date = tx.date?.slice(0, 10);
+          if (!date || date < fromDate || date > toDate) continue;
+
           if (tx.category === "Przychody") {
             incomePoints.push({ date, amount: tx.amount });
           } else {
