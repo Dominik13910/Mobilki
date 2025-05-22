@@ -15,7 +15,11 @@ export default function LoginForm() {
   const handleSubmit = async () => {
     try {
       const res = await login({ username, password });
-      router.push("/");
+      if (res.ok) {
+        router.push("/");
+      } else {
+        console.error("Sesja nieaktywna mimo logowania");
+      }
     } catch (err) {
       console.error("Login error:", err);
     }
