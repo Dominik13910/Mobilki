@@ -15,6 +15,7 @@ export default function LoginForm() {
   const handleSubmit = async () => {
     try {
       const res = await login({ username, password });
+      console.log("Login response:", res);
       if (res.ok) {
         router.push("/");
       } else {
