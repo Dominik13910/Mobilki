@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addMonths, isBefore } from "date-fns";
-import { useRouter } from "next/router";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://budzetify.onrender.com";
 
@@ -29,7 +29,6 @@ export default function StatisticsPage() {
   const [month, setMonth] = useState(defaultMonth);
   const [from, setFrom] = useState(format(startOfMonth(today), "yyyy-MM-dd"));
   const [to, setTo] = useState(format(today, "yyyy-MM-dd"));
-  const router = useRouter();
   const [budget, setBudget] = useState<number | null>(null);
   const [incomeData, setIncomeData] = useState<
     { date: string; amount: number }[]

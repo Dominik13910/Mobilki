@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRouter } from "next/router";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://budzetify.onrender.com";
@@ -36,7 +35,6 @@ export default function TransactionsPage() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("groceries");
   const [date, setDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
-  const router = useRouter();
   const [filterCategory, setFilterCategory] = useState("");
   const getMonthStart = () => {
     const now = new Date();

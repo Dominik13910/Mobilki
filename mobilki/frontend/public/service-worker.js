@@ -1,11 +1,8 @@
 const CACHE_NAME = "static-v1";
 const URLS_TO_CACHE = [
   "/",
-  "/index.html",
-  "/style.css",
-  "/main.js",
-  "/icon-192x192.png",
-  "/offline.html",
+  "/web-app-manifest-192x192.png",
+  "/web-app-manifest-512x512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -59,9 +56,14 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(() => {
-          if (event.request.mode === "navigate") {
-            return caches.match("/offline.html");
-          }
+          return new Response(
+            "Brak połączenia i brak zapisanej strony offline.",
+            {
+              status: 503,
+              statusText: "Service Unavailable",
+              headers: new Headers({ "Content-Type": "text/plain" }),
+            }
+          );
         });
     })
   );
