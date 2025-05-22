@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addMonths, isBefore } from "date-fns";
+import { useRouter } from "next/router";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://budzetify.onrender.com";
@@ -25,7 +26,7 @@ const API_URL =
 export default function StatisticsPage() {
   const today = new Date();
   const defaultMonth = format(today, "yyyy-MM");
-
+  const router = useRouter();
   const [month, setMonth] = useState(defaultMonth);
   const [from, setFrom] = useState(format(startOfMonth(today), "yyyy-MM-dd"));
   const [to, setTo] = useState(format(today, "yyyy-MM-dd"));
@@ -42,6 +43,14 @@ export default function StatisticsPage() {
 
   const fetchLineChartData = useCallback(
     async (forceRefresh = false) => {
+      const meRes = await fetch(`${API_URL}/me`, {
+        credentials: "include",
+      });
+
+      if (meRes.status === 401) {
+        router.replace("/login");
+        return;
+      }
       const fromDate = `${month}-01`;
       const toDate = format(
         new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0),
@@ -128,6 +137,14 @@ export default function StatisticsPage() {
 
   const fetchBarChartData = useCallback(
     async (forceRefresh = false) => {
+      const meRes = await fetch(`${API_URL}/me`, {
+        credentials: "include",
+      });
+
+      if (meRes.status === 401) {
+        router.replace("/login");
+        return;
+      }
       const cacheKey = `barChartData-${from}-${to}`;
 
       try {
