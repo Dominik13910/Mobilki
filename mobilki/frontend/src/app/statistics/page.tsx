@@ -144,12 +144,8 @@ export default function StatisticsPage() {
               ([date, amount]) => ({ date, amount })
             );
 
-            setIncomeData(
-              incomePoints.sort((a, b) => a.date.localeCompare(b.date))
-            );
-            setExpenseData(
-              expensePoints.sort((a, b) => a.date.localeCompare(b.date))
-            );
+            setIncomeData(getCumulativeData(incomePoints));
+            setExpenseData(getCumulativeData(expensePoints));
 
             setBudget(budgetData.amount);
           } catch {
