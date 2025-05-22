@@ -77,7 +77,7 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: "/icon-192x192.png",
+      icon: "/web-app-manifest-192x192.png",
       data: {
         url: data.url || "/",
       },
