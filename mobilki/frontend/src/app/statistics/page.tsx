@@ -77,7 +77,16 @@ export default function StatisticsPage() {
           }),
         ]);
 
-        if (!budgetRes.ok || !txRes.ok) throw new Error("API error");
+        let budgetAmount = null;
+
+        if (budgetRes.ok) {
+          const budgetData = await budgetRes.json();
+          budgetAmount = budgetData.amount;
+        } else if (budgetRes.status === 404) {
+          budgetAmount = null;
+        } else {
+          throw new Error("Budget API error");
+        }
 
         const budgetData = await budgetRes.json();
         const transactions = await txRes.json();
